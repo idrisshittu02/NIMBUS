@@ -76,6 +76,7 @@ services:
       VALKEY_PASSWORD: ${VALKEY_PASSWORD}
       # Connection URL format with username and password
       VALKEY_URL: valkey://${VALKEY_USERNAME}:${VALKEY_PASSWORD}@${VALKEY_HOST}:${VALKEY_PORT}/0
+      DEFAULT_PROVIDER: google
     ports:
       - "1284:1284"
     depends_on:
@@ -91,7 +92,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-      target: runner
+      target: dev
       args:
         NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
         NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
@@ -99,11 +100,12 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
       NEXT_PUBLIC_FRONTEND_URL: ${NEXT_PUBLIC_FRONTEND_URL}
     ports:
       - "3000:3000"
+    command: bun run dev
     depends_on:
       server:
         condition: service_started

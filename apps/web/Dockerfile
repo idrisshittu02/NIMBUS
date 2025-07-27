@@ -1,4 +1,4 @@
-# Builder stage
+# ---------- builder ----------
 FROM oven/bun AS builder
 WORKDIR /app
 
@@ -7,49 +7,49 @@ ARG NEXT_PUBLIC_FRONTEND_URL
 
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
-
-# Copy package files for dependency installation
-COPY package.json bun.lock ./
-COPY apps/web/package.json ./apps/web/
-COPY packages/ ./packages/
-
-# Install dependencies
-RUN bun install
-
-# Copy source code
-COPY . .
-
-# Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Build the application from web directory
+COPY . .
+RUN bun install
+
+# Build only when targeting production
 WORKDIR /app/apps/web
 RUN bun run build
 RUN bash scripts/handle-nextjs-standalone-build.sh
 
-# Production image
+
+# ---------- runner (for production) ----------
 FROM oven/bun AS runner
 WORKDIR /app
 
-# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
 
-# Create non-root user
 RUN groupadd -r nodejs && useradd -r -g nodejs nodejs
 
-# Copy the standalone output
 COPY --from=builder --chown=nodejs:nodejs /app/apps/web/.next ./
 COPY --from=builder --chown=nodejs:nodejs /app/apps/web/public ./public
 COPY --from=builder --chown=nodejs:nodejs /app/packages/db ./packages/db
 
-# Switch to non-root user
 USER nodejs
-
 EXPOSE ${PORT}
-
-# Based on apps/web workspace path from root package.json
 CMD ["bun", "run", "./build-start-folder/apps/web/server.js"]
+
+
+# ---------- dev (for local development) ----------
+FROM oven/bun AS dev
+WORKDIR /app
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+COPY . .
+RUN bun install
+WORKDIR /app/apps/web
+
+EXPOSE 3000
+CMD ["bun", "run", "dev"]

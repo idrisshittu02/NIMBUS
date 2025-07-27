@@ -3,10 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev # ✅ tell Docker to use the new "dev" stage from Dockerfile
     container_name: web-local-compose
     restart: unless-stopped
     env_file: .env
     environment:
-      NODE_ENV: production
+      NODE_ENV: development # ✅ ensure you're using dev mode
     ports:
       - "${WEB_PORT}:${WEB_PORT}"

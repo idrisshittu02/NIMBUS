@@ -8,5 +8,6 @@ services:
     env_file: .env
     environment:
       NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/nimbus
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
