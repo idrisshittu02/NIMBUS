@@ -1,7 +1,7 @@
 # Nimbus cloud storage
 
 An Alternative to google Cloud and icloud - a better cloud
-
+safe and secure storage
 ## Quickstart
 
 ### 1. Clone the Repository
