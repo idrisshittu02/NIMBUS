@@ -1,6 +1,6 @@
 # Nimbus cloud storage
 
-A better cloud
+An Alternative to google Cloud and icloud - a better cloud
 
 ## Quickstart
 
